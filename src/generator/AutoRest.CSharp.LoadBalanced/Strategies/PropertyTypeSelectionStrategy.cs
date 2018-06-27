@@ -16,12 +16,12 @@ namespace AutoRest.CSharp.LoadBalanced.Strategies
             _typeMappings = new List<Tuple<Func<Property, bool>, string>>
                             {
                                 new Tuple<Func<Property, bool>, string>(IsDateTime, "DateTime"),
-                                new Tuple<Func<Property, bool>, string>(IsUInt64Value, "long?"),
-                                new Tuple<Func<Property, bool>, string>(IsInt32Value, "int?"),
-                                new Tuple<Func<Property, bool>, string>(IsUInt32Value, "unint?"),
-                                new Tuple<Func<Property, bool>, string>(IsBoolValue, "bool?"),
+                                new Tuple<Func<Property, bool>, string>(IsUInt64Value, "long"),
+                                new Tuple<Func<Property, bool>, string>(IsInt32Value, "int"),
+                                new Tuple<Func<Property, bool>, string>(IsUInt32Value, "unint"),
+                                new Tuple<Func<Property, bool>, string>(IsBoolValue, "bool"),
                                 new Tuple<Func<Property, bool>, string>(IsStringValue, "string"),
-                                new Tuple<Func<Property, bool>, string>(IsBytesValue, "byte[]?")
+                                new Tuple<Func<Property, bool>, string>(IsBytesValue, "byte[]")
                             };
         }
 
