@@ -267,9 +267,8 @@ namespace @Settings.Namespace
 @EmptyLine
             private bool CertificateValidationCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
             {
-                // make sure we only ignore our request
-                var request = sender as WebRequest;
-                return request?.RequestUri.ToString().EndsWith(_url.Value) == true;
+                // this is intentionally set to true
+                return true;
             }
 @EmptyLine        
             internal async Task<ExecuteResult> ExecuteAsync()
