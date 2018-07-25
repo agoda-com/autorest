@@ -292,10 +292,25 @@ namespace @Settings.Namespace
                 _url = new Lazy<string>(() => GetUrl(httpVerb, restUrl, queryParameters));
                 _serializationSettings = serializationSettings;
                 _customHeaders = customHeaders;
-                _requestContent = new Lazy<byte[]>(() => body == null
-                                ? new byte[0]
-                                : Encoding.UTF8.GetBytes(SafeJsonConvert.SerializeObject(body,
-                                    _serializationSettings)));
+
+                if(body == null)
+				{
+					_requestContent = new Lazy<byte[]>(() => new byte[0]);
+				}
+				else
+				{				
+					var textContent = body as string;
+					
+					if(textContent == null)
+					{
+						_requestContent = new Lazy<byte[]>(() => 
+							Encoding.UTF8.GetBytes(SafeJsonConvert.SerializeObject(body, _serializationSettings)));    
+					}
+					else
+					{
+                        _requestContent = new Lazy<byte[]>(() => Encoding.UTF8.GetBytes(textContent));
+					}
+				}
             }
 @EmptyLine
             internal async Task<ExecuteResult> ExecuteAsync()
@@ -330,10 +345,10 @@ namespace @Settings.Namespace
                 {
                     var rawValue = queryParameters[parameterName];
                     if (parameterName == "body" || rawValue == null ) 
-		    {
-			continue;
-		    }
-		    string jsonValue;
+		            {
+			            continue;
+		            }
+		            string jsonValue;
 
                     // Booleans must be passed as true and false words, using Newtonsoft converter,
                     // rather than 0 and 1 integers, using Microsoft converter.
