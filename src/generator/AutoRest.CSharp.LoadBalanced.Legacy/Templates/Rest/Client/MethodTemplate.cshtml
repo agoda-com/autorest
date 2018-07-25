@@ -67,7 +67,7 @@ public async @(Model.OperationResponseReturnTypeStringForMethodName) @(Model.Nam
     {
         @:var queryParameters = new Dictionary<string, object>
         @:{
-            foreach (var parameter in Model.QueryParameters)
+            foreach (var parameter in Model.QueryParameters.Where(p => p.Name.RawValue != "body"))
             {
             @:{ "@(parameter.Name.RawValue)", @(parameter.Name) },
             }
