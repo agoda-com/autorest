@@ -58,7 +58,7 @@ namespace AutoRest.CSharp.LoadBalanced.Model
         public virtual string GetSyncMethodParameterDeclaration(bool addCustomHeaderParameters)
         {
             var declarations = new List<string>();
-            foreach (var parameter in LocalParameters)
+            foreach (var parameter in LocalParameters.Where(x => x.Location != ParameterLocation.Header))
             {
                 var format = (parameter.IsRequired ? "{0} {1}" : "{0} {1} = {2}");
 
