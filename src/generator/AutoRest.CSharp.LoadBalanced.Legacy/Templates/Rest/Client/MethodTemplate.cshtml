@@ -21,7 +21,7 @@ public async @(Model.OperationResponseReturnTypeStringForMethodName) @(Model.Nam
     var response = new Response<@(Model.OperationResponseType)>();
 
     @EmptyLine
-    @foreach (ParameterCs parameter in Model.Parameters.Where(p => !p.IsConstant))
+    @foreach (ParameterCs parameter in Model.Parameters.Where(p => !p.IsConstant && p.Location != ParameterLocation.Header))
     {
         if (parameter.IsRequired && parameter.IsNullable())
         {
