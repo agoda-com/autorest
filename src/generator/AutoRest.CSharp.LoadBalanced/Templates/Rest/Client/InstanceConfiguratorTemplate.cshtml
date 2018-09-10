@@ -54,15 +54,15 @@ namespace @Settings.Namespace
 		
         private ApiBaseConfig GetApiBaseConfig()
         {
-            if (Name.IsNullOrEmpty())
+            if (string.IsNullOrEmpty(Name))
                 throw new Exception("You must provide a name.");
-
+@EmptyLine
             if (ServerSettings == null || !ServerSettings.Any())
                 throw new Exception("You must provide server settings.");
-
+@EmptyLine
             if (RegisterAsSingleton == null)
                 throw new Exception("You must provide a registration action.");
-
+@EmptyLine
             return new ApiBaseConfig()
             {
                 name = Name,
