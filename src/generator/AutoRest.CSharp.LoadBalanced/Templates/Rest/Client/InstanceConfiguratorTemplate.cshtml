@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Agoda.RoundRobin;
 using Agoda.RoundRobin.Constants;
 using Microsoft.Rest.Serialization;
+using System.Linq;
 @EmptyLine
 namespace @Settings.Namespace
 {
@@ -25,23 +26,32 @@ namespace @Settings.Namespace
         internal List<ServerSettings> ServerSettings;
         internal Action<IClient> RegisterAsSingleton;
         internal Dictionary<string, string> Headers;
-       
+		
+@EmptyLine
+		
         public static InstanceConfigurator RegisterConfigurationSettings()
         {
             return new InstanceConfigurator();
         }
+		
+@EmptyLine
 
         public void DoYourThing()
         {
             var apiBaseConfig = GetApiBaseConfig();
             RegisterAsSingleton.Invoke(CreateInstance<@(Model.Name)>(apiBaseConfig, null, null));
         }
+		
+@EmptyLine
+
 
         public T CreateInstance<T>(params object[] paramArray)
         {
             return (T)Activator.CreateInstance(typeof(T), paramArray);
         }
 
+@EmptyLine
+		
         private ApiBaseConfig GetApiBaseConfig()
         {
             if (Name.IsNullOrEmpty())
@@ -68,7 +78,9 @@ namespace @Settings.Namespace
             };
         }
     }
-	@EmptyLine
+	
+@EmptyLine
+	
 	public static class InstanceConfiguratorExt
     {
         public static InstanceConfigurator WithName(this InstanceConfigurator that, string name)
@@ -76,37 +88,49 @@ namespace @Settings.Namespace
             that.Name = name;
             return that;
         }
-
+	
+@EmptyLine
+	
         public static InstanceConfigurator WithRetryCount(this InstanceConfigurator that, int retryCount)
         {
             that.RetryCount = retryCount;
             return that;
         }
-
+	
+@EmptyLine
+	
         public static InstanceConfigurator WithManualCalcUris(this InstanceConfigurator that, bool manualCalcUris)
         {
             that.ManualCalcUris = manualCalcUris;
             return that;
         }
-
+	
+@EmptyLine
+	
         public static InstanceConfigurator WithOverrideHostHeader(this InstanceConfigurator that, bool overrideHostHeader)
         {
             that.OverrideHostHeader = overrideHostHeader;
             return that;
         }
-
+	
+@EmptyLine
+	
         public static InstanceConfigurator WithIgnoreSslPolicyErrors(this InstanceConfigurator that, bool ignoreSslPolicyErrors)
         {
             that.IgnoreSslPolicyErrors = ignoreSslPolicyErrors;
             return that;
         }
-
+	
+@EmptyLine
+	
         public static InstanceConfigurator WithServerSettings(this InstanceConfigurator that, List<ServerSettings> serverSettings)
         {
             that.ServerSettings = serverSettings;
             return that;
         }
-
+	
+@EmptyLine
+	
         public static InstanceConfigurator WithRegistration(this InstanceConfigurator that,
             Action<IClient> registerAsSingleton)
         {
