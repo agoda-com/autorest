@@ -19,7 +19,7 @@ namespace @Settings.Namespace
     @:/// </summary>
     }
 
-    public partial class @Model.Name : ApiBase, I@{ @Model.Name }
+    public partial class @Model.Name : ApiBase, I@{ @Model.Name }, IClient
     {
 @EmptyLine
         public @Model.Name (IApiBaseConfig apiBaseConfig, EventHandler<MetricSendEventArgs> metricEvent, EventHandler<ErrorEventArgs> errorEvent)
