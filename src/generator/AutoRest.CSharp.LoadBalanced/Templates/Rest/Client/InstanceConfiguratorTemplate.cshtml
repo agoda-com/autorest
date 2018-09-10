@@ -99,25 +99,25 @@ namespace @Settings.Namespace
 	
 @EmptyLine
 	
-        public static InstanceConfigurator WithManualCalcUris(this InstanceConfigurator that, bool manualCalcUris)
+        public static InstanceConfigurator WithManualCalcUris(this InstanceConfigurator that)
         {
-            that.ManualCalcUris = manualCalcUris;
+            that.ManualCalcUris = true;
             return that;
         }
 	
 @EmptyLine
 	
-        public static InstanceConfigurator WithOverrideHostHeader(this InstanceConfigurator that, bool overrideHostHeader)
+        public static InstanceConfigurator WithOverrideHostHeader(this InstanceConfigurator that)
         {
-            that.OverrideHostHeader = overrideHostHeader;
+            that.OverrideHostHeader = true;
             return that;
         }
 	
 @EmptyLine
 	
-        public static InstanceConfigurator WithIgnoreSslPolicyErrors(this InstanceConfigurator that, bool ignoreSslPolicyErrors)
+        public static InstanceConfigurator WithIgnoreSslPolicyErrors(this InstanceConfigurator that)
         {
-            that.IgnoreSslPolicyErrors = ignoreSslPolicyErrors;
+            that.IgnoreSslPolicyErrors = true;
             return that;
         }
 	
@@ -129,6 +129,14 @@ namespace @Settings.Namespace
             return that;
         }
 	
+@EmptyLine
+	
+        public static InstanceConfigurator WithCustomHeaders(this InstanceConfigurator that, Dictionary<string, string> customHeaders)
+        {
+            that.Headers = customHeaders;
+            return that;
+        }
+		
 @EmptyLine
 	
         public static InstanceConfigurator WithRegistration(this InstanceConfigurator that,
