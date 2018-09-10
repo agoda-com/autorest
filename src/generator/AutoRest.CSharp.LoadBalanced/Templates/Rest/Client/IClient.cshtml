@@ -1,0 +1,21 @@
+﻿@inherits AutoRest.Core.Template<AutoRest.CSharp.LoadBalanced.Model.CodeModelCs>
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using Newtonsoft.Json;
+using Microsoft.Rest;
+using System.Threading.Tasks;
+using Agoda.RoundRobin;
+using Agoda.RoundRobin.Constants;
+using Microsoft.Rest.Serialization;
+@EmptyLine
+namespace @Settings.Namespace
+{
+    public interface IClient
+    {
+    }
+}
