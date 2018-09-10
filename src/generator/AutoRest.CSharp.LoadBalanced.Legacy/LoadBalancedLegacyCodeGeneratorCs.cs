@@ -55,6 +55,11 @@ namespace AutoRest.CSharp.LoadBalanced.Legacy
             var responseFilePath = "Response.cs";
             await Write(responseTemplate, responseFilePath);
 
+            var iClientTemplate = new IClient();
+            var iClientTemplatePath = "IClient.cs";
+            project.FilePaths.Add(iClientTemplatePath);
+            await Write(iClientTemplate, iClientTemplatePath);
+
             usings.AddRange(new[]
                             {
                                 "System", "System.Collections.Generic", "System.Linq", "System.Threading",
