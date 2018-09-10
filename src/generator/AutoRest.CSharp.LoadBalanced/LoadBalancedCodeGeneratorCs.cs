@@ -68,6 +68,12 @@ namespace AutoRest.CSharp.LoadBalanced
 
             codeModel.Usings = usings.Where(u => !string.IsNullOrWhiteSpace(u)).Distinct();
 
+            // Instance Configurator
+            var instanceConfiguratorTemplate = new InstanceConfiguratorTemplate() { Model = codeModel };
+            var instanceConfiguratorTemplatPath = "InstanceConfigurator.cs";
+            project.FilePaths.Add(instanceConfiguratorTemplatPath);
+            await Write(instanceConfiguratorTemplate, instanceConfiguratorTemplatPath);
+
             // Service client
             var serviceClientTemplate = new ServiceClientTemplate { Model = codeModel };
 

@@ -1,0 +1,117 @@
+﻿@inherits AutoRest.Core.Template<AutoRest.CSharp.LoadBalanced.Model.CodeModelCs>
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using Newtonsoft.Json;
+using Microsoft.Rest;
+using System.Threading.Tasks;
+using Agoda.RoundRobin;
+using Agoda.RoundRobin.Constants;
+using Microsoft.Rest.Serialization;
+@EmptyLine
+namespace @Settings.Namespace
+{
+	public class InstanceConfigurator
+    {
+        internal int RetryCount;
+        internal bool ManualCalcUris;
+        internal bool OverrideHostHeader;
+        internal string Name;
+        internal bool IgnoreSslPolicyErrors = true;
+        internal List<ServerSettings> ServerSettings;
+        internal Action<IClient> RegisterAsSingleton;
+        internal Dictionary<string, string> Headers;
+       
+        public static InstanceConfigurator RegisterConfigurationSettings()
+        {
+            return new InstanceConfigurator();
+        }
+
+        public void DoYourThing()
+        {
+            var apiBaseConfig = GetApiBaseConfig();
+            RegisterAsSingleton.Invoke(CreateInstance<@(Model.Name)>(apiBaseConfig, null, null));
+        }
+
+        public T CreateInstance<T>(params object[] paramArray)
+        {
+            return (T)Activator.CreateInstance(typeof(T), paramArray);
+        }
+
+        private ApiBaseConfig GetApiBaseConfig()
+        {
+            if (Name.IsNullOrEmpty())
+                throw new Exception("You must provide a name.");
+
+            if (ServerSettings == null || !ServerSettings.Any())
+                throw new Exception("You must provide server settings.");
+
+            if (RegisterAsSingleton == null)
+                throw new Exception("You must provide a registration action.");
+
+            return new ApiBaseConfig()
+            {
+                name = Name,
+                deserializationSettings = null,
+                retryCount = RetryCount,
+                serializationSettings = null,
+                settings = ServerSettings,
+                timeout = null,
+                manualCalcUris = ManualCalcUris,
+                overrideHostHeader = OverrideHostHeader,
+                ignoreSslPolicyErrors = IgnoreSslPolicyErrors,
+                customHeaders = Headers
+            };
+        }
+    }
+	@EmptyLine
+	public static class InstanceConfiguratorExt
+    {
+        public static InstanceConfigurator WithName(this InstanceConfigurator that, string name)
+        {
+            that.Name = name;
+            return that;
+        }
+
+        public static InstanceConfigurator WithRetryCount(this InstanceConfigurator that, int retryCount)
+        {
+            that.RetryCount = retryCount;
+            return that;
+        }
+
+        public static InstanceConfigurator WithManualCalcUris(this InstanceConfigurator that, bool manualCalcUris)
+        {
+            that.ManualCalcUris = manualCalcUris;
+            return that;
+        }
+
+        public static InstanceConfigurator WithOverrideHostHeader(this InstanceConfigurator that, bool overrideHostHeader)
+        {
+            that.OverrideHostHeader = overrideHostHeader;
+            return that;
+        }
+
+        public static InstanceConfigurator WithIgnoreSslPolicyErrors(this InstanceConfigurator that, bool ignoreSslPolicyErrors)
+        {
+            that.IgnoreSslPolicyErrors = ignoreSslPolicyErrors;
+            return that;
+        }
+
+        public static InstanceConfigurator WithServerSettings(this InstanceConfigurator that, List<ServerSettings> serverSettings)
+        {
+            that.ServerSettings = serverSettings;
+            return that;
+        }
+
+        public static InstanceConfigurator WithRegistration(this InstanceConfigurator that,
+            Action<IClient> registerAsSingleton)
+        {
+            that.RegisterAsSingleton = registerAsSingleton;
+            return that;
+        }
+    }
+}
