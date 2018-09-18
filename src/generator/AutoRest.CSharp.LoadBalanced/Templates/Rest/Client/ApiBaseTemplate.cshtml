@@ -1,4 +1,4 @@
-﻿@inherits AutoRest.Core.Template<AutoRest.CSharp.LoadBalanced.Model.CodeModelCs>
+@inherits AutoRest.Core.Template<AutoRest.CSharp.LoadBalanced.Model.CodeModelCs>
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -36,6 +36,11 @@ namespace @Settings.Namespace
         public Dictionary<string, object> Tags { get; set; }
     }
 @EmptyLine
+    public class HttpData
+    {
+        public Dictionary<string, string> Headers {get; set;} 
+    }
+@EmptyLine
     public interface IApiBaseConfig
     {
         string name { get; set; }
@@ -50,6 +55,7 @@ namespace @Settings.Namespace
         bool? ignoreSslPolicyErrors { get; set; }
         EventHandler<MetricSendEventArgs> metricEvent { get; set; }
         EventHandler<ErrorEventArgs> errorEvent { get; set; }
+        Func<HttpData> httpData { get; set; }
     }
 
     public class ApiBaseConfig : IApiBaseConfig
@@ -66,6 +72,7 @@ namespace @Settings.Namespace
         public bool? ignoreSslPolicyErrors { get; set; }
         public EventHandler<MetricSendEventArgs> metricEvent { get; set; }
         public EventHandler<ErrorEventArgs> errorEvent { get; set; }
+        public Func<HttpData> httpData { get; set; }
     }
 
     public abstract class ApiBase
@@ -82,6 +89,7 @@ namespace @Settings.Namespace
         private event EventHandler<MetricSendEventArgs> _metricSendEvent;
         private event EventHandler<ErrorEventArgs> _errorEvent;
         private readonly bool _ignoreSslPolicyErrors;
+        private Func<HttpData> _httpData;
 @EmptyLine
         protected ApiBase(IApiBaseConfig apiBaseConfig)
         {
@@ -95,11 +103,13 @@ namespace @Settings.Namespace
             _deserializationSettings = apiBaseConfig.deserializationSettings;
             _customHeaders = apiBaseConfig.customHeaders;
             _ignoreSslPolicyErrors = apiBaseConfig.ignoreSslPolicyErrors ?? false;
-
+@EmptyLine
             if (apiBaseConfig.metricEvent != null)
                 _metricSendEvent += apiBaseConfig.metricEvent;
             if (apiBaseConfig.errorEvent != null)
                 _errorEvent += apiBaseConfig.errorEvent;
+@EmptyLine
+            _httpData = apiBaseConfig.httpData;
         }
 @EmptyLine
 
@@ -144,6 +154,13 @@ namespace @Settings.Namespace
             ExecuteResult executeResult = null;
             try
             {
+                // restructure if we need more in the future
+                var httpDataHeaders = _httpData?.Invoke()?.Headers;
+                if (httpDataHeaders != null && httpDataHeaders.Any())
+                {
+                    parameters.CustomHeaders.Concat(httpDataHeaders);
+                }
+
                 var request = new HttpRequestCommand(
                             _name,
                             _settings,
