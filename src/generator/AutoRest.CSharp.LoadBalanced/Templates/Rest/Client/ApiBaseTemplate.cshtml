@@ -159,7 +159,11 @@ namespace @Settings.Namespace
                 var httpDataHeaders = _httpData?.Invoke()?.Headers;
                 if (httpDataHeaders != null && httpDataHeaders.Any())
                 {
-                    parameters.CustomHeaders.Concat(httpDataHeaders);
+                    if (parameters.CustomHeaders == null)
+                        parameters.CustomHeaders = new Dictionary<string, string>();
+
+                    parameters.CustomHeaders = parameters.CustomHeaders
+                        .Concat(httpDataHeaders).ToDictionary(x=>x.Key,x=>x.Value);;
                 }
 
                 var request = new HttpRequestCommand(
