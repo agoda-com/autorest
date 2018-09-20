@@ -183,7 +183,7 @@ namespace @Settings.Namespace
 
                 executeResult = await request.ExecuteAsync();
 
-                if (!executeResult.IsOK)
+                if (!executeResult.IsSuccessStatus)
                 {
                     throw executeResult.GetExeptions();
                 }

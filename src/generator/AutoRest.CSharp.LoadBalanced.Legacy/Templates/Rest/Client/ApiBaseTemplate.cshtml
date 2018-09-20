@@ -156,7 +156,7 @@ namespace @Settings.Namespace
                 var statusCode = executeResult.Status;
                 var responseContent = executeResult.Results;
 
-                if (!executeResult.IsOK)
+                if (!executeResult.IsSuccessStatus)
                 {
                     if (string.IsNullOrEmpty(responseContent))
                     {
