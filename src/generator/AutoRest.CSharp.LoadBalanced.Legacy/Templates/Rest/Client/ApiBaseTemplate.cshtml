@@ -177,11 +177,6 @@ namespace @Settings.Namespace
                     }
                 }
 
-                if (statusCode != 200)
-                {
-                    throw new Exception($"Operation returned an invalid status code '{statusCode}'");
-                }
-
                 try
                 {
                     var responseDto = JsonConvert.DeserializeObject<TResult>(responseContent, DeserializationSettings);
