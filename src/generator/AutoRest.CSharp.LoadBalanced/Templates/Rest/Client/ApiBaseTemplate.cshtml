@@ -193,6 +193,18 @@ namespace @Settings.Namespace
 
                 try
                 {
+                    if (typeof(TResult) == typeof(Response))
+                    {
+                        var response =  new Response
+                        {
+                            HttpCode = executeResult.Status,
+                            IsSuccessful = true,
+                            RawResult = Encoding.ASCII.GetBytes(responseContent)
+                        };
+                                            
+                        return (TResult) Convert.ChangeType(response, typeof(TResult));
+                    }
+
                     var responseDto = JsonConvert.DeserializeObject<TResult>(responseContent, DeserializationSettings);
                     return responseDto;
                 }
