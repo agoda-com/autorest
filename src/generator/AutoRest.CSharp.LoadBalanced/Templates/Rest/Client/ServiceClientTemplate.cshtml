@@ -22,8 +22,8 @@ namespace @Settings.Namespace
     public partial class @Model.Name : ApiBase, I@{ @Model.Name }, IClient
     {
 @EmptyLine
-        public @Model.Name (IApiBaseConfig apiBaseConfig, EventHandler<MetricSendEventArgs> metricEvent, EventHandler<ErrorEventArgs> errorEvent)
-		: base(apiBaseConfig, metricEvent, errorEvent)
+        public @Model.Name (IApiBaseConfig apiBaseConfig)
+		: base(apiBaseConfig)
         {
         }
 

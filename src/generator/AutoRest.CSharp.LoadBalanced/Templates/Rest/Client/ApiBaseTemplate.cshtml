@@ -1,4 +1,4 @@
-﻿@inherits AutoRest.Core.Template<AutoRest.CSharp.LoadBalanced.Model.CodeModelCs>
+@inherits AutoRest.Core.Template<AutoRest.CSharp.LoadBalanced.Model.CodeModelCs>
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Agoda.RoundRobin;
 using Agoda.RoundRobin.Constants;
 using Microsoft.Rest.Serialization;
+using System.Linq;
 @EmptyLine
 namespace @Settings.Namespace
 {
@@ -29,6 +30,18 @@ namespace @Settings.Namespace
         public object Payload { get; set; }
     }
 @EmptyLine
+    public class MetricSendEventArgs : EventArgs
+    {
+        public long ElapsedMilliseconds { get; set; }
+        public string Name { get; set; }
+        public Dictionary<string, object> Tags { get; set; }
+    }
+@EmptyLine
+    public class HttpData
+    {
+        public Dictionary<string, string> Headers {get; set;} 
+    }
+@EmptyLine
     public interface IApiBaseConfig
     {
         string name { get; set; }
@@ -41,6 +54,9 @@ namespace @Settings.Namespace
         JsonSerializerSettings deserializationSettings { get; set; }
         Dictionary<string, string> customHeaders {get; set;}
         bool? ignoreSslPolicyErrors { get; set; }
+        EventHandler<MetricSendEventArgs> metricEvent { get; set; }
+        EventHandler<ErrorEventArgs> errorEvent { get; set; }
+        Func<HttpData> httpData { get; set; }
     }
 
     public class ApiBaseConfig : IApiBaseConfig
@@ -55,6 +71,9 @@ namespace @Settings.Namespace
         public JsonSerializerSettings deserializationSettings { get; set; }
         public Dictionary<string, string> customHeaders {get; set;}
         public bool? ignoreSslPolicyErrors { get; set; }
+        public EventHandler<MetricSendEventArgs> metricEvent { get; set; }
+        public EventHandler<ErrorEventArgs> errorEvent { get; set; }
+        public Func<HttpData> httpData { get; set; }
     }
 
     public abstract class ApiBase
@@ -71,6 +90,7 @@ namespace @Settings.Namespace
         private event EventHandler<MetricSendEventArgs> _metricSendEvent;
         private event EventHandler<ErrorEventArgs> _errorEvent;
         private readonly bool _ignoreSslPolicyErrors;
+        private Func<HttpData> _httpData;
 @EmptyLine
         protected ApiBase(IApiBaseConfig apiBaseConfig)
         {
@@ -84,16 +104,13 @@ namespace @Settings.Namespace
             _deserializationSettings = apiBaseConfig.deserializationSettings;
             _customHeaders = apiBaseConfig.customHeaders;
             _ignoreSslPolicyErrors = apiBaseConfig.ignoreSslPolicyErrors ?? false;
-        }
 @EmptyLine
-
-        protected ApiBase(IApiBaseConfig apiBaseConfig, EventHandler<MetricSendEventArgs> metricEvent, EventHandler<ErrorEventArgs> errorEvent) : this(apiBaseConfig)
-        {
-            if (metricEvent != null)
-                _metricSendEvent += metricEvent;
-
-            if (errorEvent != null)
-                _errorEvent += errorEvent;
+            if (apiBaseConfig.metricEvent != null)
+                _metricSendEvent += apiBaseConfig.metricEvent;
+            if (apiBaseConfig.errorEvent != null)
+                _errorEvent += apiBaseConfig.errorEvent;
+@EmptyLine
+            _httpData = apiBaseConfig.httpData;
         }
 @EmptyLine
 
@@ -138,6 +155,17 @@ namespace @Settings.Namespace
             ExecuteResult executeResult = null;
             try
             {
+                // restructure if we need more in the future
+                var httpDataHeaders = _httpData?.Invoke()?.Headers;
+                if (httpDataHeaders != null && httpDataHeaders.Any())
+                {
+                    if (parameters.CustomHeaders == null)
+                        parameters.CustomHeaders = new Dictionary<string, string>();
+
+                    parameters.CustomHeaders = parameters.CustomHeaders
+                        .Concat(httpDataHeaders).ToDictionary(x=>x.Key,x=>x.Value);;
+                }
+
                 var request = new HttpRequestCommand(
                             _name,
                             _settings,
@@ -155,7 +183,7 @@ namespace @Settings.Namespace
 
                 executeResult = await request.ExecuteAsync();
 
-                if (!executeResult.IsOK)
+                if (!executeResult.IsSuccessStatus)
                 {
                     throw executeResult.GetExeptions();
                 }
@@ -163,13 +191,20 @@ namespace @Settings.Namespace
                 var statusCode = executeResult.Status;
                 var responseContent = executeResult.Results;
 
-                if (statusCode != 200)
-                {
-                    throw new Exception($"Operation returned an invalid status code '{statusCode}'");
-                }
-
                 try
                 {
+                    if (typeof(TResult) == typeof(Response))
+                    {
+                        var response =  new Response
+                        {
+                            HttpCode = executeResult.Status,
+                            IsSuccessful = true,
+                            RawResult = Encoding.ASCII.GetBytes(responseContent)
+                        };
+                                            
+                        return (TResult) Convert.ChangeType(response, typeof(TResult));
+                    }
+
                     var responseDto = JsonConvert.DeserializeObject<TResult>(responseContent, DeserializationSettings);
                     return responseDto;
                 }
@@ -202,13 +237,6 @@ namespace @Settings.Namespace
                         Tags = tags
                     });
             }
-        }
-@EmptyLine
-        public class MetricSendEventArgs : EventArgs
-        {
-            public long ElapsedMilliseconds { get; set; }
-            public string Name { get; set; }
-            public Dictionary<string, object> Tags { get; set; }
         }
 @EmptyLine
         public class RequestParameters
@@ -304,17 +332,55 @@ namespace @Settings.Namespace
 @EmptyLine
             protected string GetUrl(string restUrl, Dictionary<string, object> queryParameters)
             {
-                var url = restUrl;
+                var path = restUrl;
+                var query = new Dictionary<string, string>();
+
+                // Substitute the path parameters.
                 foreach (var parameterName in queryParameters.Keys)
                 {
                     var rawValue = queryParameters[parameterName];
-                    var jsonValue = SafeJsonConvert
-                        .SerializeObject(rawValue, _serializationSettings)
-                        .Trim('"');
+                    if (parameterName == "body" || rawValue == null ) 
+		            {
+			            continue;
+		            }
+		            string jsonValue;
+
+                    // Booleans must be passed as true and false words, using Newtonsoft converter,
+                    // rather than 0 and 1 integers, using Microsoft converter.
+                    if (rawValue is bool)
+                    {
+                        jsonValue = JsonConvert.SerializeObject(rawValue);
+                    }
+                    else
+                    {
+                        jsonValue = SafeJsonConvert
+                            .SerializeObject(rawValue, _serializationSettings)
+                            .Trim('"');
+                    }
+
                     var urlValue = Uri.EscapeDataString(jsonValue);
-                    url = url.Replace($"{{{parameterName}}}", urlValue);
+                    var placeholder = $"{{{parameterName}}}";
+
+                    if (path.Contains(placeholder))
+                    {
+                        path = path.Replace(placeholder, urlValue);
+                    }
+                    else
+                    {
+                        query[parameterName] = urlValue;
+                    }
                 }
-                return url;
+                var uriBuilder = new UriBuilder(null, null, -1, path);
+
+                //ignore body parameter when appending query parameter in URL
+                uriBuilder.Query = string.Join("&", query.Select(parameter =>
+                {
+                    var name = WebUtility.UrlEncode(parameter.Key);
+                    var value = parameter.Value;
+                    return $"{name}={value}";
+                }));
+
+                return uriBuilder.ToString();
             }
         }
     }

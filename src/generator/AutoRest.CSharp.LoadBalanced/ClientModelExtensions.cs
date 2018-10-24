@@ -206,12 +206,14 @@ namespace AutoRest.CSharp.LoadBalanced
                 primaryType = New<PrimaryType>(KnownPrimaryType.String);
             }
 
-            if (primaryType == null || primaryType.KnownPrimaryType != KnownPrimaryType.String)
+            if (primaryType == null || primaryType.KnownPrimaryType != KnownPrimaryType.String && 
+                primaryType.KnownPrimaryType != KnownPrimaryType.Int)
             {
                 throw new InvalidOperationException(
                     string.Format(CultureInfo.InvariantCulture, 
-                    "Cannot generate a formatted sequence from a " +
-                                  "non-string List parameter {0}", parameter));
+                    "Cannot generate a formatted sequence from " +
+                                  "non-string or integer List parameter {0}. Type found {1} with name {2}.", 
+                        parameter, primaryType?.KnownPrimaryType, primaryType?.Name));
             }
 
             return string.Format(CultureInfo.InvariantCulture,
