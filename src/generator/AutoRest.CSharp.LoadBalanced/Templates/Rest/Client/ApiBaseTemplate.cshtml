@@ -193,9 +193,9 @@ namespace @Settings.Namespace
 
                 try
                 {
-                    if (typeof(TResult) == typeof(Models.Response))
+                    if (typeof(TResult) == typeof(Response))
                     {
-                        var response =  new Models.Response
+                        var response =  new Response
                         {
                             HttpCode = executeResult.Status,
                             IsSuccessful = true,
