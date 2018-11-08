@@ -185,6 +185,11 @@ namespace @Settings.Namespace
 
                 if (!executeResult.IsSuccessStatus)
                 {
+                    if(!string.IsNullOrWhiteSpace(responseContent))
+                    {
+                        throw new Exception(responseContent);
+                    }
+
                     throw executeResult.GetExeptions();
                 }
 
