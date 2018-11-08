@@ -183,13 +183,19 @@ namespace @Settings.Namespace
 
                 executeResult = await request.ExecuteAsync();
 
+                var responseContent = executeResult.Results;
                 if (!executeResult.IsSuccessStatus)
                 {
+                    if(!string.IsNullOrWhiteSpace(responseContent))
+                    {
+                        throw new Exception(responseContent);
+                    }
+
                     throw executeResult.GetExeptions();
                 }
 
                 var statusCode = executeResult.Status;
-                var responseContent = executeResult.Results;
+                
 
                 try
                 {
