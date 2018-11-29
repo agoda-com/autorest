@@ -233,6 +233,7 @@ namespace @Settings.Namespace
                     tags.Add("RetryCount", executeResult.RetryCount);
                     tags.Add("Status", executeResult.Status);
                     tags.Add("TotalReceivedBytes", executeResult.TotalReceivedBytes);
+                    tags.Add("Uri", executeResult.Uri);
                 }
 
                 _metricSendEvent?.Invoke(this,
