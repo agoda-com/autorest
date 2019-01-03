@@ -186,17 +186,23 @@ namespace @Settings.Namespace
                 var responseContent = executeResult.Results;
                 if (!executeResult.IsSuccessStatus)
                 {
+                    // try to get error message or other details if possible
                     if(!string.IsNullOrWhiteSpace(responseContent))
                     {
                         throw new Exception(responseContent);
                     }
 
+                    var responseEx = executeResult.Exceptions.FirstOrDefault();
+                    if (!string.IsNullOrWhiteSpace(responseEx?.Message))
+                    {
+                        throw new Exception(responseEx.Message);
+                    }
+	
                     throw executeResult.GetExeptions();
                 }
 
                 var statusCode = executeResult.Status;
                 
-
                 try
                 {
                     if (typeof(TResult) == typeof(Response))
