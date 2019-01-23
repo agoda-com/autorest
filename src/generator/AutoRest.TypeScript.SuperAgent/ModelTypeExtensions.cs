@@ -37,6 +37,11 @@ namespace AutoRest.TypeScript.SuperAgent
             return modelType is EnumType;
         }
 
+        public static bool IsDictionaryType(this IModelType modelType)
+        {
+            return modelType is DictionaryType;
+        }
+
         public static bool IsComplexType(this IModelType modelType)
         {
             return modelType is CompositeType;

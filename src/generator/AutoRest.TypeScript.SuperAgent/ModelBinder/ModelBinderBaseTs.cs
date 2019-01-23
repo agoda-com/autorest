@@ -58,6 +58,10 @@ namespace AutoRest.TypeScript.SuperAgent.ModelBinder
                 {
                     return name;
                 }
+                if (modelType.IsDictionaryType())
+                {
+                    return name;
+                }
 
                 return modelType.IsPrimaryType() ? name : $"{prefix}I{name}";
             }
