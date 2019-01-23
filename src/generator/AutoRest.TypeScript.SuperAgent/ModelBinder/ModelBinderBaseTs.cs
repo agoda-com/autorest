@@ -39,6 +39,10 @@ namespace AutoRest.TypeScript.SuperAgent.ModelBinder
                 requestName = $"{moduleName}.{requestName}";
             }
 
+            if (responseName == null)
+            {
+                return false;
+            }
             return true;
         }
 
@@ -52,6 +56,10 @@ namespace AutoRest.TypeScript.SuperAgent.ModelBinder
 
             if (seqType == null)
             {
+                if (modelType == null)
+                {
+                    return null;
+                }
                 name = modelType.GetImplementationName();
 
                 if (modelType.IsEnumType())
