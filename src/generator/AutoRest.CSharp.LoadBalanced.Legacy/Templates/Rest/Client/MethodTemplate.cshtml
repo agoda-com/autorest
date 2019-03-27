@@ -1,4 +1,4 @@
-﻿@using System.Globalization
+@using System.Globalization
 @using System.Linq;
 @using System
 @using AutoRest.Core.Model
@@ -10,9 +10,9 @@
 @using AutoRest.Extensions
 @inherits AutoRest.Core.Template<AutoRest.CSharp.LoadBalanced.Legacy.Model.MethodCs>
 
-@if (Model.Deprecated)
+@if (true)
 {
-    @:[System.Obsolete()]
+    @:[System.Obsolete("Deprecated, please use GraphQL")]
 }
 
 [Description("@((String.IsNullOrEmpty(Model.Description) ? "" : Model.Description.EscapeXmlComment()))"), Summary("@((String.IsNullOrEmpty(Model.Summary) ? "" : Model.Summary.EscapeXmlComment()))"), Url("@(Model.FromattedUrl)"), Verb("@(Model.HttpMethod.ToString().ToUpper())"), Tags("@(string.Join(",", Model.Tags))")]
