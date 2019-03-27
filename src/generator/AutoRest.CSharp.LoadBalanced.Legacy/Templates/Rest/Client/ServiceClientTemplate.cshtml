@@ -1,4 +1,4 @@
-﻿@using System.Linq
+@using System.Linq
 @using AutoRest.Core.Utilities
 @using AutoRest.CSharp.LoadBalanced.Legacy.Model
 @using AutoRest.CSharp.LoadBalanced.Legacy.Templates.Rest.Client
@@ -24,7 +24,7 @@ namespace @Settings.Namespace
     @:@WrapComment("/// ", model.Documentation.EscapeXmlComment())
     @:/// </summary>
     }
-
+    [Obsolete("Deprecated, please use GraphQL")]
     public partial class @clientName : ApiBase, I@{ @clientName }
     { 
 
