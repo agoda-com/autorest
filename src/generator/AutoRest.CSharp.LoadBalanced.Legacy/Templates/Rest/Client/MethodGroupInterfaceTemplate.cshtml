@@ -63,9 +63,9 @@ namespace @Settings.Namespace
         @:/// Thrown when a required parameter is null
         @:/// </exception>
         }
-        @if (method.Deprecated)
+        @if (true)
         {
-        @:[System.Obsolete()]
+        @:[System.Obsolete("Deprecated, please use GraphQL")]
         }
         @:System.Threading.Tasks.Task<@method.OperationResponseReturnTypeString> @(method.Name)(@(method.GetAsyncMethodParameterDeclaration(true)));
     }
