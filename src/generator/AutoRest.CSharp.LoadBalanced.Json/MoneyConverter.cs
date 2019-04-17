@@ -38,30 +38,29 @@ namespace AutoRest.CSharp.LoadBalanced.Json
             }
             
             var moneyValue = 0m;
-            decimal.TryParse(value.ToString(), out moneyValue);
+            if (value is decimal)
+            {
+                moneyValue = (decimal)value;
+            }
+            else
+            {
+                decimal.TryParse(value.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out moneyValue);
+            }
+
             var typedValue = SendAsText ? (object)ConvertDecimalToText(moneyValue) : moneyValue;
             JToken.FromObject(typedValue).WriteTo(writer);
         }
 
-        public string ConvertDecimalToText(decimal value)
+        public static string ConvertDecimalToText(decimal value)
         {
-            var s = string.Format("{0:0.00}", value);
-
-            if ( s.EndsWith("00") )
-            {
-                return ((int)value).ToString();
-            }
-            else
-            {
-                return s;
-            }
+            return value.ToString();
         }
 
         public sealed override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             var isText = objectType == typeof(string);
-            var isNullable = Nullable.GetUnderlyingType(objectType) != null;
-            var defaultValue = isNullable ? null : (isText ? (object) "0" : 0);
+            var isNullable = isText || Nullable.GetUnderlyingType(objectType) != null;
+            var defaultValue = isNullable ? null : (isText ? (object) "0" : 0m);
 
             JToken token = JToken.Load(reader);
             if (token == null)
