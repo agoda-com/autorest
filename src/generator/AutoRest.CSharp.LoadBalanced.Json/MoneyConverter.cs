@@ -1,5 +1,5 @@
 using System;
-using System.Diagnostics;
+using System.Globalization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -36,64 +36,51 @@ namespace AutoRest.CSharp.LoadBalanced.Json
                 JToken.FromObject(null).WriteTo(writer);
                 return;
             }
+            
+            var moneyValue = 0m;
+            if (value is decimal)
+            {
+                moneyValue = (decimal)value;
+            }
+            else
+            {
+                decimal.TryParse(value.ToString(), NumberStyles.Any, CultureInfo.InvariantCulture, out moneyValue);
+            }
 
-            object typedValue = null;
-            typedValue = SendAsText ? (object)(value?.ToString() ?? "0") : (decimal)(value ?? 0);
+            var typedValue = SendAsText ? (object)ConvertDecimalToText(moneyValue) : moneyValue;
             JToken.FromObject(typedValue).WriteTo(writer);
+        }
+
+        public static string ConvertDecimalToText(decimal value)
+        {
+            return value.ToString();
         }
 
         public sealed override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
+            var isText = objectType == typeof(string);
+            var isNullable = isText || Nullable.GetUnderlyingType(objectType) != null;
+            var defaultValue = isNullable ? null : (isText ? (object) "0" : 0m);
+
             JToken token = JToken.Load(reader);
-            if (token != null)
+            if (token == null)
             {
-                switch (token.Type)
-                {
-                    case JTokenType.String:
-                        if (IsNullable && string.IsNullOrEmpty(token.ToString()))
-                        {
-                            return null;
-                        }
-                        else
-                        {
-                            var value = TryParse(token.ToString());
-                            return SendAsText ? (object)value.ToString() : value;
-                        }
-                    case JTokenType.Null:
-                        if (IsNullable)
-                        {
-                            return null;
-                        }
-                        return SendAsText ? (object)"0" : 0;
-                    case JTokenType.Float:
-                    case JTokenType.Integer:
-                        if (SendAsText)
-                        {
-                            return token.ToString();
-                        }
-                        else
-                        {
-                            return token.ToObject<decimal>();
-                        }
-                    default:
-                        return SendAsText ? (object)"0" : 0;
-                }
+                return defaultValue;
+            }
+
+            var moneyValue = 0m;
+            if (decimal.TryParse(token.ToString() ?? "", NumberStyles.Any, CultureInfo.InvariantCulture, out moneyValue))
+            {
+                return isText ? (object)ConvertDecimalToText(moneyValue) : moneyValue;
             }
             else
             {
-                return SendAsText ? (object)"0" : 0;
+                return defaultValue;
             }
         }
 
         protected bool SendAsText => _options?.HasFlag(MoneyConverterOptions.SendAsText) ?? false;
         protected bool IsNullable => _options?.HasFlag(MoneyConverterOptions.IsNullable) ?? false;
-
-        public decimal TryParse(string value)
-        {
-            decimal parsedValue;
-            decimal.TryParse(value, out parsedValue);
-            return parsedValue;
-        }
 
         public sealed override bool CanConvert(Type objectType)
         {
