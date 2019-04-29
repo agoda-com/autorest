@@ -8,11 +8,12 @@ namespace AutoRest.CSharp.LoadBalanced.Legacy.Strategies
 {
     public class WrappedPropertyTypeSelectionStrategy : PropertyTypeSelectionStrategy
     {
-        private static string[] _datePostfixes = new[] {"When", "Time", "Date"};
-        private static string[] _guidPostfixes = new[] { "By", "UserId", "Token" };
-        private static string[] _moneyPostfixes = new[] { "Cost", "Rate", "Amount", "Price", "Discount", "Fee", "Percent" };
-        private static string[] _booleanSuffixes = new[] {"allotmentAutoToPup", "Flag" };
-        private static string[] _booleanPrefixes = new[] {"is"};
+        private static string[] _datePostfixes = {"When", "Time", "Date"};
+        private static string[] _guidPostfixes = { "By", "UserId", "Token" };
+        private static string[] _moneyPostfixes = { "Cost", "Rate", "Amount", "Price", "Discount", "Fee", "Percent" };
+        private static string[] _booleanSuffixes = {"allotmentAutoToPup", "Flag" };
+        private static string[] _booleanPrefixes = {"is"};
+        private static string[] _notMoney = { "rackrate" };
         public override bool IsDateTime(Property property)
         {
             if(IsDateText(property))
@@ -33,7 +34,9 @@ namespace AutoRest.CSharp.LoadBalanced.Legacy.Strategies
         public override bool IsMoney(Property property)
         {
             if (property.ModelType.Name == "string" && _moneyPostfixes.Any(
-                p => property.Name.RawValue.ToUpper().EndsWith(p.ToUpper())))
+                p => property.Name.RawValue.ToUpper().EndsWith(p.ToUpper()))
+                && !_notMoney.Contains(property.Name.RawValue.ToLower())
+                )
             {
                 return true;
             }
