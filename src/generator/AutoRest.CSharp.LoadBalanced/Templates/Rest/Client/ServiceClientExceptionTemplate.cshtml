@@ -1,0 +1,106 @@
+@inherits AutoRest.Core.Template<AutoRest.CSharp.LoadBalanced.Model.CodeModelCs>
+@EmptyLine
+namespace @Settings.Namespace
+{
+@EmptyLine
+    /// <summary>
+    @WrapComment("/// ", "Exception thrown for an invalid response with " + Model.Name + " information.")
+    /// </summary>
+#if !PORTABLE
+    [System.Serializable]
+#endif
+    public class @(Model.Name)Exception : System.Exception
+    {
+@EmptyLine
+        /// <summary>
+        /// Gets endpoint url.
+        /// </summary>
+        public string Uri { get; }
+@EmptyLine
+        /// <summary>
+        /// Gets the response status code.
+        /// </summary>
+        public int StatusCode;
+@EmptyLine
+        /// <summary>
+        /// Gets the retry count.
+        /// </summary>
+		public int RetryCount;
+@EmptyLine
+        /// <summary>
+        /// Initializes a new instance of the @(Model.Name)Exception class.
+        /// </summary>
+        public @(Model.Name)Exception()
+        {
+        }
+@EmptyLine
+        /// <summary>
+        /// Initializes a new instance of the @(Model.Name)Exception class.
+        /// </summary>
+        /// <param name="message">The exception message.</param>
+        public @(Model.Name)Exception(string message)
+            : this(message, null)
+        {
+        }
+@EmptyLine
+        /// <summary>
+        /// Initializes a new instance of the @(Model.Name)Exception class.
+        /// </summary>
+        /// <param name="message">The exception message.</param>
+        /// <param name="innerException">Inner exception.</param>
+        public @(Model.Name)Exception(string message, System.Exception innerException)
+            : base(message, innerException)
+        {
+        }
+@EmptyLine
+        /// <summary>
+        /// Initializes a new instance of the @(Model.Name)Exception class.
+        /// </summary>
+        /// <param name="message">The exception message.</param>
+        /// <param name="innerException">Inner exception.</param>
+        /// <param name="uri">The endpoint uri.</param>
+        /// <param name="statusCode">The http response status.</param>
+        /// <param name="retryCount">The retry count.</param>        
+        public @(Model.Name)Exception(string message, System.Exception innerException, string uri, int statusCode, int retryCount)
+            : base(message, innerException)
+        {
+            Uri = uri;
+            StatusCode = statusCode;
+            RetryCount = retryCount;
+        }
+@EmptyLine
+#if !PORTABLE
+        /// <summary>
+        /// Initializes a new instance of the @(Model.Name) class.
+        /// </summary>
+        /// <param name="info">Serialization info.</param>
+        /// <param name="context">Streaming context.</param>
+        protected @(Model.Name)Exception(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context)
+            : base(info, context)
+        {
+        }
+@EmptyLine
+        /// <summary>
+        /// Serializes content of the exception.
+        /// </summary>
+        /// <param name="info">Serialization info.</param>
+        /// <param name="context">Streaming context.</param>
+        /// <exception cref="System.ArgumentNullException">
+        /// Thrown when a required parameter is null
+        /// </exception>
+        [System.Security.Permissions.SecurityPermission(System.Security.Permissions.SecurityAction.Demand, SerializationFormatter = true)]
+        public override void GetObjectData(System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            if (info == null)
+            {
+                throw new System.ArgumentNullException("info");
+            }
+@EmptyLine
+            info.AddValue("Uri", Uri);
+            info.AddValue("StatusCode", StatusCode);
+            info.AddValue("RetryCount", RetryCount);
+}
+#endif
+    }
+}

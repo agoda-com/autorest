@@ -52,7 +52,7 @@ namespace AutoRest.CSharp.LoadBalanced
             var responseFilePath = "Response.cs";
             project.FilePaths.Add(responseFilePath);
             await Write(responseTemplate, responseFilePath);
-
+            
             usings.Add("System");
             usings.Add("System.Collections.Generic");
             usings.Add("System.Linq");
@@ -88,6 +88,12 @@ namespace AutoRest.CSharp.LoadBalanced
             var apiBaseCsPath = "ApiBase.cs";
             project.FilePaths.Add(apiBaseCsPath);
             await Write(apiBaseTemplate, apiBaseCsPath);
+            
+            // Service client exception
+            var serviceClientExceptionTemplate = new ServiceClientExceptionTemplate { Model = codeModel };
+            var serviceClientExceptionFilePath = $"{codeModel.Name}Exception.cs";
+            project.FilePaths.Add(serviceClientExceptionFilePath);
+            await Write(serviceClientExceptionTemplate, serviceClientExceptionFilePath);
 
             // operations
             foreach (var methodGroup1 in codeModel.Operations)

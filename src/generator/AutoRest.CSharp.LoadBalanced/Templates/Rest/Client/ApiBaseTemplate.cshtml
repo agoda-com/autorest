@@ -187,22 +187,15 @@ namespace @Settings.Namespace
                 if (!executeResult.IsSuccessStatus)
                 {
                     // try to get error message or other details if possible
-                    if(!string.IsNullOrWhiteSpace(responseContent))
-                    {
-                        throw new Exception(responseContent);
-                    }
-
                     var responseEx = executeResult.Exceptions.FirstOrDefault();
-                    if (!string.IsNullOrWhiteSpace(responseEx?.Message))
-                    {
-                        throw new Exception(responseEx.Message);
-                    }
-	
-                    throw executeResult.GetExeptions();
+                    var message = responseEx?.Message ?? responseContent;
+                    var exception = responseEx?.Exception ?? executeResult.GetExeptions();
+                    var uri = responseEx?.Uri ?? executeResult.Uri;
+                    var statusCode = (int)(responseEx?.StatusCode ?? HttpStatusCode.InternalServerError);
+
+                    throw new @(Model.Name)Exception(message, exception, uri, statusCode, executeResult.RetryCount);
                 }
 
-                var statusCode = executeResult.Status;
-                
                 try
                 {
                     if (typeof(TResult) == typeof(Response))
